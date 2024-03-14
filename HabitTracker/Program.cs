@@ -14,10 +14,17 @@ using (var connection = new SqliteConnection(connectionString))
             Date TEXT,
             Quantity INTEGER
             )";
+    tableCmd.CommandText =
+        @"CREATE TABLE IF NOT EXISTS calories_eaten (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Date TEXT,
+            Calories INTEGER
+            )";
+
 
     tableCmd.ExecuteNonQuery();
 
     connection.Close();
 }
 
-Menu.MenuOptions();
+ConsoleInterface.MenuOptions();
