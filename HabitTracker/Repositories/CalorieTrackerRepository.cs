@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using HabitTracker.ConsoleInterface;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -105,8 +106,8 @@ namespace HabitTracker.Repositories
                     UpdateRecords(recordId);
                 }
 
-                string date = ConsoleInterface.GetDate();
-                int quantity = ConsoleInterface.GetDataInput("Please enter the number of calories you have eaten today");
+                string date = UserInput.GetDate();
+                int quantity = UserInput.GetDataInput("Please enter the number of calories you have eaten today");
 
                 var tableCmd = connection.CreateCommand();
                 tableCmd.CommandText = $"UPDATE calories_eaten SET date = '{date}', quantity = {quantity} WHERE Id = {recordId}";

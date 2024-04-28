@@ -1,4 +1,4 @@
-﻿using HabitTracker;
+﻿using HabitTracker.ConsoleInterface;
 using Microsoft.Data.Sqlite;
 
 string connectionString = @"Data Source=habit-tracker.db";
@@ -27,4 +27,4 @@ using (var connection = new SqliteConnection(connectionString))
     connection.Close();
 }
 
-ConsoleInterface.MenuOptions();
+Menu.MenuOptions();
