@@ -1,4 +1,4 @@
-﻿using HabitTracker.Repositories;
+﻿using HabitTracker.Persistence.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -20,7 +20,7 @@ namespace HabitTracker.ConsoleInterface
             while (!DateTime.TryParseExact(todaysDate, "dd-MM-yyyy", new CultureInfo("en-UK"), DateTimeStyles.None, out _))
             {
                 Console.Clear();
-                Console.WriteLine("Invalid date. (Format: dd-mm-yyyy). Please try again");
+                Console.WriteLine("Invalid date. (Format: dd-mm-yyyy). Please input the date below.");
                 todaysDate = Console.ReadLine();
             }
             Console.Clear();
@@ -50,7 +50,6 @@ namespace HabitTracker.ConsoleInterface
         }
         public static string GetStepsRecordId(string message)
         {
-            Console.Clear();
             StepTrackerRepository.RetrieveRecords();
             Console.WriteLine(message);
             var recordId = Console.ReadLine();
@@ -58,7 +57,6 @@ namespace HabitTracker.ConsoleInterface
         }
         public static string GetCalorieRecordId(string message)
         {
-            Console.Clear();
             CalorieTrackerRepository.RetrieveRecords();
             Console.WriteLine(message);
             var recordId = Console.ReadLine();

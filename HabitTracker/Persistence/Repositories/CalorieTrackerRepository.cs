@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HabitTracker.Repositories
+namespace HabitTracker.Persistence.Repositories
 {
     internal class CalorieTrackerRepository
     {
@@ -28,9 +28,8 @@ namespace HabitTracker.Repositories
             }
 
         }
-        public static void RetrieveRecords()
+        public static List<Models.CaloriesEaten> RetrieveRecords()
         {
-            Console.Clear();
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
@@ -38,16 +37,16 @@ namespace HabitTracker.Repositories
                 tableCmd.CommandText =
                     $"SELECT * FROM calories_eaten ";
 
-                List<CaloriesEaten> tableData = new();
+                List<Models.CaloriesEaten> tableData = [];
 
-                SqliteDataReader reader = tableCmd.ExecuteReader();
+                var reader = tableCmd.ExecuteReader();
 
                 if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
                         tableData.Add(
-                        new CaloriesEaten
+                        new Models.CaloriesEaten
                         {
                             Id = reader.GetInt32(0),
                             Date = DateTime.ParseExact(reader.GetString(1), "dd-MM-yyyy", new CultureInfo("en-UK")),
@@ -55,23 +54,13 @@ namespace HabitTracker.Repositories
                         });
                     }
                 }
-                else
-                {
-                    Console.WriteLine("No records found. Press any button to continue.");
-                    Console.ReadLine();
-                }
 
                 connection.Close();
-                Console.WriteLine("-----------------------------------------");
+                return tableData;
 
-                foreach (var row in tableData)
-                {
-                    Console.WriteLine($"{row.Id} - {row.Date.ToString("dd-MM-yyyy")} - Calories: {row.Quantity}");
-                }
-                Console.WriteLine("-----------------------------------------");
             }
         }
-        public static void DeleteRecords(string recordId)
+        public static int DeleteRecords(string recordId)
         {
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -79,17 +68,11 @@ namespace HabitTracker.Repositories
                 var tableCmd = connection.CreateCommand();
                 tableCmd.CommandText = $"DELETE from calories_eaten WHERE Id = '{recordId}'";
 
-                int rowCount = tableCmd.ExecuteNonQuery();
-
-                if (rowCount == 0)
-                {
-                    Console.WriteLine($"\n Record with Id {recordId} doesn't exist");
-                    DeleteRecords(recordId);
-                }
+                return tableCmd.ExecuteNonQuery();
             }
 
         }
-        public static void UpdateRecords(string recordId)
+        public static bool UpdateRecords(string recordId, string date, int quantity)
         {
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -97,31 +80,43 @@ namespace HabitTracker.Repositories
 
                 var checkCmd = connection.CreateCommand();
                 checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM calories_eaten WHERE Id = {recordId})";
-                int checkInput = Convert.ToInt32(checkCmd.ExecuteScalar());
+                var matchingRecords = Convert.ToInt32(checkCmd.ExecuteScalar());
 
-                if (checkInput == 0)
+                if (matchingRecords == 0)
                 {
-                    Console.WriteLine($"\nRecord with Id {recordId} doesn't exist.\n");
                     connection.Close();
-                    UpdateRecords(recordId);
+                    return false;
                 }
 
-                string date = UserInput.GetDate();
-                int quantity = UserInput.GetDataInput("Please enter the number of calories you have eaten today");
 
                 var tableCmd = connection.CreateCommand();
                 tableCmd.CommandText = $"UPDATE calories_eaten SET date = '{date}', quantity = {quantity} WHERE Id = {recordId}";
-
                 tableCmd.ExecuteNonQuery();
-
                 connection.Close();
+
+                return true;
             }
-        }     
-        public class CaloriesEaten
+        }
+        public static bool IdMatch(string recordId)
         {
-            public int Id { get; set; }
-            public DateTime Date { get; set; }
-            public int Quantity { get; set; }
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+
+                var checkCmd = connection.CreateCommand();
+                checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM calories_eaten WHERE Id = {recordId})";
+                var matchingRecords = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                if (matchingRecords == 0)
+                {
+                    connection.Close();
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
         }
     }
 }
